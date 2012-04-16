@@ -1,16 +1,9 @@
-/*******************************************************************************
-* Waffle (http://waffle.codeplex.com)
-* 
-* Copyright (c) 2010 Application Security, Inc.
-* 
-* All rights reserved. This program and the accompanying materials
-* are made available under the terms of the Eclipse Public License v1.0
-* which accompanies this distribution, and is available at
-* http://www.eclipse.org/legal/epl-v10.html
-*
-* Contributors:
-*     Application Security, Inc.
-*******************************************************************************/
+/*
+ * Copyright (c) Application Security Inc., 2010
+ * All Rights Reserved
+ * Eclipse Public License (EPLv1)
+ * http://waffle.codeplex.com/license
+ */
 package waffle.servlet;
 
 import java.io.IOException;
@@ -26,20 +19,18 @@ import org.apache.catalina.realm.GenericPrincipal;
 import waffle.apache.catalina.SimpleFilterChain;
 import waffle.apache.catalina.SimpleHttpRequest;
 import waffle.apache.catalina.SimpleHttpResponse;
-import waffle.mock.MockWindowsAuthProvider;
 import waffle.mock.MockWindowsIdentity;
 import waffle.util.Base64;
 import waffle.windows.auth.IWindowsCredentialsHandle;
 import waffle.windows.auth.PrincipalFormat;
-import waffle.windows.auth.impl.WindowsAccountImpl;
 import waffle.windows.auth.impl.WindowsAuthProviderImpl;
 import waffle.windows.auth.impl.WindowsCredentialsHandleImpl;
 import waffle.windows.auth.impl.WindowsSecurityContextImpl;
 
 import com.sun.jna.platform.win32.Advapi32Util;
-import com.sun.jna.platform.win32.Secur32.EXTENDED_NAME_FORMAT;
 import com.sun.jna.platform.win32.Secur32Util;
 import com.sun.jna.platform.win32.Sspi;
+import com.sun.jna.platform.win32.Secur32.EXTENDED_NAME_FORMAT;
 import com.sun.jna.platform.win32.Sspi.SecBufferDesc;
 
 /**
@@ -92,10 +83,10 @@ public class NegotiateSecurityFilterTests extends TestCase {
 			clientCredentials.initialize();
 			// initial client security context
 			clientContext = new WindowsSecurityContextImpl();
-			clientContext.setPrincipalName(WindowsAccountImpl.getCurrentUsername());
+			clientContext.setPrincipalName(Advapi32Util.getUserName());
 			clientContext.setCredentialsHandle(clientCredentials.getHandle());
 			clientContext.setSecurityPackage(securityPackage);
-			clientContext.initialize(null, null, WindowsAccountImpl.getCurrentUsername());
+			clientContext.initialize();
 			SimpleHttpRequest request = new SimpleHttpRequest();
 			request.setMethod("POST");
 			request.setContentLength(0);
@@ -130,10 +121,10 @@ public class NegotiateSecurityFilterTests extends TestCase {
 			clientCredentials.initialize();
 			// initial client security context
 			clientContext = new WindowsSecurityContextImpl();
-			clientContext.setPrincipalName(WindowsAccountImpl.getCurrentUsername());
+			clientContext.setPrincipalName(Advapi32Util.getUserName());
 			clientContext.setCredentialsHandle(clientCredentials.getHandle());
 			clientContext.setSecurityPackage(securityPackage);
-			clientContext.initialize(null, null, WindowsAccountImpl.getCurrentUsername());
+			clientContext.initialize();
 			// filter chain
 			SimpleFilterChain filterChain = new SimpleFilterChain();
 			// negotiate
@@ -151,7 +142,7 @@ public class NegotiateSecurityFilterTests extends TestCase {
 	    		authenticated = (subject != null && subject.getPrincipals().size() > 0);
 	
 	    		if (authenticated) {
-	        		assertTrue(response.getHeaderNames().length >= 0);
+	        		assertEquals(0, response.getHeaderNames().length);
 	    			break;
 	    		}
 	    		
@@ -163,7 +154,7 @@ public class NegotiateSecurityFilterTests extends TestCase {
 	    		byte[] continueTokenBytes = Base64.decode(continueToken);
 	    		assertTrue(continueTokenBytes.length > 0);
 	            SecBufferDesc continueTokenBuffer = new SecBufferDesc(Sspi.SECBUFFER_TOKEN, continueTokenBytes);
-	            clientContext.initialize(clientContext.getHandle(), continueTokenBuffer, "localhost");
+	            clientContext.initialize(clientContext.getHandle(), continueTokenBuffer);
 	        }        
 	        assertTrue(authenticated);
 	        assertTrue(filterChain.getRequest() instanceof NegotiateRequestWrapper);
@@ -172,9 +163,8 @@ public class NegotiateSecurityFilterTests extends TestCase {
 	        assertEquals("NEGOTIATE", wrappedRequest.getAuthType());
 	        assertEquals(Secur32Util.getUserNameEx(EXTENDED_NAME_FORMAT.NameSamCompatible), 
 	        		wrappedRequest.getRemoteUser());
-	        assertTrue(wrappedRequest.getUserPrincipal() instanceof WindowsPrincipal);	        
-	        String everyoneGroupName = Advapi32Util.getAccountBySid("S-1-1-0").name;
-	        assertTrue(wrappedRequest.isUserInRole(everyoneGroupName));
+	        assertTrue(wrappedRequest.getUserPrincipal() instanceof WindowsPrincipal);
+	        assertTrue(wrappedRequest.isUserInRole("Everyone"));
 	        assertTrue(wrappedRequest.isUserInRole("S-1-1-0"));
 		} finally {
 			if (clientContext != null) {
@@ -260,28 +250,17 @@ public class NegotiateSecurityFilterTests extends TestCase {
 		filterConfig.setParameter("allowGuestLogin", "true");
 		filterConfig.setParameter("securityFilterProviders", "waffle.servlet.spi.BasicSecurityFilterProvider\n");
 		filterConfig.setParameter("waffle.servlet.spi.BasicSecurityFilterProvider/realm", "DemoRealm");
-		filterConfig.setParameter("authProvider", MockWindowsAuthProvider.class.getName());
 		_filter.init(filterConfig);
 		assertEquals(_filter.getPrincipalFormat(), PrincipalFormat.sid);
 		assertEquals(_filter.getRoleFormat(), PrincipalFormat.none);
 		assertTrue(_filter.getAllowGuestLogin());
 		assertEquals(1, _filter.getProviders().size());
-		assertTrue(_filter.getAuth() instanceof MockWindowsAuthProvider);
-	}
-	
-	public void testInitTwoSecurityFilterProviders() throws ServletException {
-		// make sure that providers can be specified separated by any kind of space
-		SimpleFilterConfig filterConfig = new SimpleFilterConfig();
-		filterConfig.setParameter("securityFilterProviders", "waffle.servlet.spi.BasicSecurityFilterProvider\n" +
-				"waffle.servlet.spi.NegotiateSecurityFilterProvider waffle.servlet.spi.BasicSecurityFilterProvider");
-		_filter.init(filterConfig);
-		assertEquals(3, _filter.getProviders().size());
 	}
 	
 	public void testInitNegotiateSecurityFilterProvider() throws ServletException {
 		SimpleFilterConfig filterConfig = new SimpleFilterConfig();
 		filterConfig.setParameter("securityFilterProviders", "waffle.servlet.spi.NegotiateSecurityFilterProvider\n");
-		filterConfig.setParameter("waffle.servlet.spi.NegotiateSecurityFilterProvider/protocols", "NTLM\nNegotiate NTLM");
+		filterConfig.setParameter("waffle.servlet.spi.NegotiateSecurityFilterProvider/protocols", "NTLM");		
 		_filter.init(filterConfig);
 		assertEquals(_filter.getPrincipalFormat(), PrincipalFormat.fqn);
 		assertEquals(_filter.getRoleFormat(), PrincipalFormat.fqn);

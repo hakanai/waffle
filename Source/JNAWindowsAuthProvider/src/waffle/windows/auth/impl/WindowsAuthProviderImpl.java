@@ -1,16 +1,9 @@
-/*******************************************************************************
-* Waffle (http://waffle.codeplex.com)
-* 
-* Copyright (c) 2010 Application Security, Inc.
-* 
-* All rights reserved. This program and the accompanying materials
-* are made available under the terms of the Eclipse Public License v1.0
-* which accompanies this distribution, and is available at
-* http://www.eclipse.org/legal/epl-v10.html
-*
-* Contributors:
-*     Application Security, Inc.
-*******************************************************************************/
+/*
+ * Copyright (c) Application Security Inc., 2010
+ * All Rights Reserved
+ * Eclipse Public License (EPLv1)
+ * http://waffle.codeplex.com/license
+ */
 package waffle.windows.auth.impl;
 
 import java.net.InetAddress;
@@ -69,11 +62,6 @@ public class WindowsAuthProviderImpl implements IWindowsAuthProvider {
 
 	public IWindowsSecurityContext acceptSecurityToken(String connectionId, byte[] token, String securityPackage) {
 
-		if (token == null || token.length == 0) {
-        	_continueContexts.remove(connectionId);
-            throw new Win32Exception(W32Errors.SEC_E_INVALID_TOKEN);			
-		}
-		
         IWindowsCredentialsHandle serverCredential = new WindowsCredentialsHandleImpl(
                 null, Sspi.SECPKG_CRED_INBOUND, securityPackage);
         serverCredential.initialize();

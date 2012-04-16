@@ -1,16 +1,9 @@
-/*******************************************************************************
-* Waffle (http://waffle.codeplex.com)
-* 
-* Copyright (c) 2010 Application Security, Inc.
-* 
-* All rights reserved. This program and the accompanying materials
-* are made available under the terms of the Eclipse Public License v1.0
-* which accompanies this distribution, and is available at
-* http://www.eclipse.org/legal/epl-v10.html
-*
-* Contributors:
-*     Application Security, Inc.
-*******************************************************************************/
+/*
+ * Copyright (c) Application Security Inc., 2010
+ * All Rights Reserved
+ * Eclipse Public License (EPLv1)
+ * http://waffle.codeplex.com/license
+ */
 package waffle.servlet;
 
 import java.io.Serializable;
@@ -36,7 +29,6 @@ public class WindowsPrincipal implements Principal, Serializable {
 	private byte[] _sid;
 	private String _sidString;
 	private List<String> _roles;
-	private transient IWindowsIdentity _identity;
 	private Map<String, WindowsAccount> _groups;
 
 	/**
@@ -59,7 +51,6 @@ public class WindowsPrincipal implements Principal, Serializable {
 	 */
 	public WindowsPrincipal(IWindowsIdentity windowsIdentity, 
 			PrincipalFormat principalFormat, PrincipalFormat roleFormat) {
-		_identity = windowsIdentity;
 		_fqn = windowsIdentity.getFqn();
 		_sid = windowsIdentity.getSid();
 		_sidString = windowsIdentity.getSidString();
@@ -206,10 +197,5 @@ public class WindowsPrincipal implements Principal, Serializable {
 	 */
 	public String getName() {
 		return _fqn;
-	}
-	
-	/** Underlying identity */
-	public IWindowsIdentity getIdentity() {
-		return _identity;
 	}
 }
