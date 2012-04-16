@@ -1,16 +1,9 @@
-/*******************************************************************************
-* Waffle (http://waffle.codeplex.com)
-* 
-* Copyright (c) 2010 Application Security, Inc.
-* 
-* All rights reserved. This program and the accompanying materials
-* are made available under the terms of the Eclipse Public License v1.0
-* which accompanies this distribution, and is available at
-* http://www.eclipse.org/legal/epl-v10.html
-*
-* Contributors:
-*     Application Security, Inc.
-*******************************************************************************/
+/*
+ * Copyright (c) Application Security Inc., 2010
+ * All Rights Reserved
+ * Eclipse Public License (EPLv1)
+ * http://waffle.codeplex.com/license
+ */
 package waffle.windows.auth.impl;
 
 import waffle.windows.auth.IWindowsCredentialsHandle;
@@ -19,13 +12,14 @@ import waffle.windows.auth.IWindowsImpersonationContext;
 import waffle.windows.auth.IWindowsSecurityContext;
 
 import com.sun.jna.NativeLong;
+import com.sun.jna.platform.win32.Advapi32Util;
 import com.sun.jna.platform.win32.Secur32;
 import com.sun.jna.platform.win32.Sspi;
+import com.sun.jna.platform.win32.W32Errors;
+import com.sun.jna.platform.win32.Win32Exception;
 import com.sun.jna.platform.win32.Sspi.CredHandle;
 import com.sun.jna.platform.win32.Sspi.CtxtHandle;
 import com.sun.jna.platform.win32.Sspi.SecBufferDesc;
-import com.sun.jna.platform.win32.W32Errors;
-import com.sun.jna.platform.win32.Win32Exception;
 import com.sun.jna.platform.win32.WinNT.HANDLEByReference;
 import com.sun.jna.ptr.NativeLongByReference;
 
@@ -67,16 +61,16 @@ public class WindowsSecurityContextImpl implements IWindowsSecurityContext {
 	 * @return
 	 *  Windows security context.
 	 */
-	public static IWindowsSecurityContext getCurrent(String securityPackage, String targetName) {
+	public static IWindowsSecurityContext getCurrent(String securityPackage) {
 		IWindowsCredentialsHandle credentialsHandle = WindowsCredentialsHandleImpl.getCurrent(
 				securityPackage);
 		credentialsHandle.initialize();
 		try {
 			WindowsSecurityContextImpl ctx = new WindowsSecurityContextImpl();
-			ctx.setPrincipalName(WindowsAccountImpl.getCurrentUsername());
+			ctx.setPrincipalName(Advapi32Util.getUserName());
 			ctx.setCredentialsHandle(credentialsHandle.getHandle()); 
 			ctx.setSecurityPackage(securityPackage);
-			ctx.initialize(null, null, targetName);
+			ctx.initialize();
 			return ctx;
 		} finally {
 			credentialsHandle.dispose();
@@ -87,12 +81,17 @@ public class WindowsSecurityContextImpl implements IWindowsSecurityContext {
 		
 	}
 	
-	public void initialize(CtxtHandle continueCtx, SecBufferDesc continueToken, String targetName) {
+	public void initialize() {
+		initialize(null, null);
+	}
+	
+	public void initialize(CtxtHandle continueCtx, SecBufferDesc continueToken) {
+		
 		_attr = new NativeLongByReference();
 		_token = new SecBufferDesc(Sspi.SECBUFFER_TOKEN, Sspi.MAX_TOKEN_SIZE);
     	_ctx = new CtxtHandle();
     	int rc = Secur32.INSTANCE.InitializeSecurityContext(_credentials, continueCtx, 
-    			targetName, new NativeLong(Sspi.ISC_REQ_CONNECTION), new NativeLong(0), 
+    			Advapi32Util.getUserName(), new NativeLong(Sspi.ISC_REQ_CONNECTION), new NativeLong(0), 
     			new NativeLong(Sspi.SECURITY_NATIVE_DREP), continueToken, new NativeLong(0), _ctx, _token, 
     			_attr, null);
     	switch(rc) {

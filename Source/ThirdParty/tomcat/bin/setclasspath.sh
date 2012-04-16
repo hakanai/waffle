@@ -18,30 +18,15 @@
 # -----------------------------------------------------------------------------
 #  Set CLASSPATH and Java options
 #
-#  $Id: setclasspath.sh 795037 2009-07-17 10:52:16Z markt $
+#  $Id: setclasspath.sh 952492 2010-06-07 23:54:51Z kkolinko $
 # -----------------------------------------------------------------------------
 
 # Make sure prerequisite environment variables are set
 if [ -z "$JAVA_HOME" -a -z "$JRE_HOME" ]; then
-  # Bugzilla 37284 (reviewed).
-  if $darwin; then
-    if [ -d "/System/Library/Frameworks/JavaVM.framework/Versions/CurrentJDK/Home" ]; then
-      export JAVA_HOME="/System/Library/Frameworks/JavaVM.framework/Versions/CurrentJDK/Home"
-    fi
+  # Bugzilla 37284
+  if $darwin && [ -d "/System/Library/Frameworks/JavaVM.framework/Versions/1.5/Home" ]; then
+    export JAVA_HOME="/System/Library/Frameworks/JavaVM.framework/Versions/1.5/Home"
   else
-    JAVA_PATH=`which java 2>/dev/null`
-    if [ "x$JAVA_PATH" != "x" ]; then
-      JAVA_PATH=`dirname $JAVA_PATH 2>/dev/null`
-      JRE_HOME=`dirname $JAVA_PATH 2>/dev/null`
-    fi
-    if [ "x$JRE_HOME" = "x" ]; then
-      # XXX: Should we try other locations?
-      if [ -x /usr/bin/java ]; then
-        JRE_HOME=/usr
-      fi
-    fi
-  fi
-  if [ -z "$JAVA_HOME" -a -z "$JRE_HOME" ]; then
     echo "Neither the JAVA_HOME nor the JRE_HOME environment variable is defined"
     echo "At least one of these environment variable is needed to run this program"
     exit 1
@@ -92,11 +77,8 @@ if [ ! -x "$BASEDIR"/bin/setclasspath.sh ]; then
   fi
 fi
 
-# Don't override the endorsed dir if the user has set it previously
-if [ -z "$JAVA_ENDORSED_DIRS" ]; then
-  # Set the default -Djava.endorsed.dirs argument
-  JAVA_ENDORSED_DIRS="$BASEDIR"/endorsed
-fi
+# Set the default -Djava.endorsed.dirs argument
+JAVA_ENDORSED_DIRS="$BASEDIR"/common/endorsed
 
 # OSX hack to CLASSPATH
 JIKESPATH=

@@ -1,4 +1,3 @@
-@echo off
 rem Licensed to the Apache Software Foundation (ASF) under one or more
 rem contributor license agreements.  See the NOTICE file distributed with
 rem this work for additional information regarding copyright ownership.
@@ -17,7 +16,7 @@ rem limitations under the License.
 rem ---------------------------------------------------------------------------
 rem Set CLASSPATH and Java options
 rem
-rem $Id: setclasspath.bat 908749 2010-02-10 23:26:42Z markt $
+rem $Id: setclasspath.bat 952487 2010-06-07 23:42:24Z kkolinko $
 rem ---------------------------------------------------------------------------
 
 rem Make sure prerequisite environment variables are set
@@ -40,7 +39,7 @@ if not exist "%JAVA_HOME%\bin\javaw.exe" goto noJavaHome
 if not exist "%JAVA_HOME%\bin\jdb.exe" goto noJavaHome
 if not exist "%JAVA_HOME%\bin\javac.exe" goto noJavaHome
 if not "%JRE_HOME%" == "" goto okJavaHome
-set "JRE_HOME=%JAVA_HOME%"
+set JRE_HOME=%JAVA_HOME%
 goto okJavaHome
 
 :noJavaHome
@@ -61,11 +60,8 @@ echo This environment variable is needed to run this program
 goto exit
 :okBasedir
 
-rem Don't override the endorsed dir if the user has set it previously
-if not "%JAVA_ENDORSED_DIRS%" == "" goto gotEndorseddir
 rem Set the default -Djava.endorsed.dirs argument
-set "JAVA_ENDORSED_DIRS=%BASEDIR%\endorsed"
-:gotEndorseddir
+set JAVA_ENDORSED_DIRS=%BASEDIR%\common\endorsed
 
 rem Set standard command for invoking Java.
 rem Note that NT requires a window name argument when using start.

@@ -1,16 +1,9 @@
-/*******************************************************************************
-* Waffle (http://waffle.codeplex.com)
-* 
-* Copyright (c) 2010 Application Security, Inc.
-* 
-* All rights reserved. This program and the accompanying materials
-* are made available under the terms of the Eclipse Public License v1.0
-* which accompanies this distribution, and is available at
-* http://www.eclipse.org/legal/epl-v10.html
-*
-* Contributors:
-*     Application Security, Inc.
-*******************************************************************************/
+/*
+ * Copyright (c) Application Security Inc., 2010
+ * All Rights Reserved
+ * Eclipse Public License (EPLv1)
+ * http://waffle.codeplex.com/license
+ */
 package waffle.apache;
 
 import java.io.IOException;
@@ -62,16 +55,17 @@ public class MixedAuthenticator extends WaffleAuthenticatorBase {
 		// realm: fail if no realm is configured
 		if(context == null || context.getRealm() == null) {
 			_log.warn("missing context/realm");
-			sendError(response, HttpServletResponse.SC_SERVICE_UNAVAILABLE);
+			response.setStatus(HttpServletResponse.SC_SERVICE_UNAVAILABLE);
 			return false;
 		}
 
 		_log.debug(request.getMethod() + " " + request.getRequestURI() + ", contentlength: " + request.getContentLength());
-
-		boolean negotiateCheck = request.getParameter("j_negotiate_check") != null;
-		_log.debug("negotiateCheck: " + negotiateCheck);
-		boolean securityCheck = request.getParameter("j_security_check") != null;
-		_log.debug("securityCheck: " + securityCheck);
+		
+		String queryString = request.getQueryString();
+		boolean negotiateCheck = (queryString != null && queryString.equals("j_negotiate_check"));
+		_log.debug("negotiateCheck: " + negotiateCheck + " (" +  ((queryString == null) ? "<none>" : queryString) + ")");
+		boolean securityCheck = (queryString != null && queryString.equals("j_security_check"));
+		_log.debug("securityCheck: " + securityCheck + " (" +  ((queryString == null) ? "<none>" : queryString) + ")");
 
 		Principal principal = request.getUserPrincipal();
 		
@@ -137,7 +131,7 @@ public class MixedAuthenticator extends WaffleAuthenticatorBase {
 			
 			if (securityContext.getContinue() || ntlmPost) {
 				response.setHeader("Connection", "keep-alive");
-				response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
+				response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
 				response.flushBuffer();
 				return false;
 			}

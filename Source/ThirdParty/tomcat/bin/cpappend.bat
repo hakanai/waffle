@@ -1,4 +1,3 @@
-@echo off
 rem Licensed to the Apache Software Foundation (ASF) under one or more
 rem contributor license agreements.  See the NOTICE file distributed with
 rem this work for additional information regarding copyright ownership.
@@ -17,7 +16,7 @@ rem limitations under the License.
 rem ---------------------------------------------------------------------------
 rem Append to CLASSPATH
 rem
-rem $Id: cpappend.bat 562770 2007-08-04 22:13:58Z markt $
+rem $Id: cpappend.bat 952487 2010-06-07 23:42:24Z kkolinko $
 rem ---------------------------------------------------------------------------
 
 rem Process the first argument

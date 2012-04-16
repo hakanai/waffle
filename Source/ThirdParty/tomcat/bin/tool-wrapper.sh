@@ -30,7 +30,7 @@
 #   JAVA_OPTS     (Optional) Java runtime options used when the "start",
 #                 "stop", or "run" command is executed.
 #
-# $Id: tool-wrapper.sh 947596 2010-05-24 10:50:27Z kkolinko $
+# $Id: tool-wrapper.sh 952492 2010-06-07 23:54:51Z kkolinko $
 # -----------------------------------------------------------------------------
 
 # OS specific support.  $var _must_ be set to either true or false.
@@ -52,14 +52,13 @@ while [ -h "$PRG" ]; do
   fi
 done
 
-# Get standard environment variables
-PRGDIR=`dirname "$PRG"`
-CATALINA_HOME=`cd "$PRGDIR/.." >/dev/null; pwd`
-
 # Ensure that any user defined CLASSPATH variables are not used on startup,
 # but allow them to be specified in setenv.sh, in rare case when it is needed.
 CLASSPATH=
 
+# Get standard environment variables
+PRGDIR=`dirname "$PRG"`
+CATALINA_HOME=`cd "$PRGDIR/.." >/dev/null; pwd`
 if [ -r "$CATALINA_HOME"/bin/setenv.sh ]; then
   . "$CATALINA_HOME"/bin/setenv.sh
 fi
@@ -82,7 +81,7 @@ else
 fi
 
 # Add on extra jar files to CLASSPATH
-CLASSPATH="$CLASSPATH":"$CATALINA_HOME"/bin/bootstrap.jar:"$BASEDIR"/lib/servlet-api.jar
+CLASSPATH="$CLASSPATH":"$CATALINA_HOME"/bin/bootstrap.jar:"$BASEDIR"/common/lib/jmx.jar:"$BASEDIR"/common/lib/servlet-api.jar
 
 # For Cygwin, switch paths to Windows format before running java
 if $cygwin; then

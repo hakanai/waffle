@@ -116,7 +116,7 @@
                 <tr>
 		  <td class="menu">
 		    <a href="manager/status">Status</a><br/>
-                    <!--<a href="admin">Tomcat&nbsp;Administration</a><br/>-->
+                    <a href="admin">Tomcat&nbsp;Administration</a><br/>
                     <a href="manager/html">Tomcat&nbsp;Manager</a><br/>
                     &nbsp;
                   </td>
@@ -131,8 +131,8 @@
                 <tr>
                   <td class="menu">
                     <a href="RELEASE-NOTES.txt">Release&nbsp;Notes</a><br/>
-                    <a href="docs/changelog.html">Change&nbsp;Log</a><br/>
-                    <a href="docs">Tomcat&nbsp;Documentation</a><br/>                        &nbsp;
+                    <a href="tomcat-docs/changelog.html">Change&nbsp;Log</a><br/>
+                    <a href="tomcat-docs">Tomcat&nbsp;Documentation</a><br/>                        &nbsp;
                     &nbsp;
 		    </td>
                 </tr>
@@ -164,8 +164,8 @@
                 </tr>
                 <tr>
                   <td class="menu">
-                    <a href="examples/servlets/">Servlets Examples</a><br/>
-                    <a href="examples/jsp/">JSP Examples</a><br/>
+                    <a href="jsp-examples/">JSP&nbsp;Examples</a><br/>
+                    <a href="servlets-examples/">Servlet&nbsp;Examples</a><br/>
                     <a href="webdav/">WebDAV&nbsp;capabilities</a><br/>
      		    &nbsp;
                   </td>
@@ -196,13 +196,19 @@
           <p>As you may have guessed by now, this is the default Tomcat home page. It can be found on the local filesystem at:</p>
           <p class="code">$CATALINA_HOME/webapps/ROOT/index.jsp</p>
 	  
-          <p>where "$CATALINA_HOME" is the root of the Tomcat installation directory. If you're seeing this page, and you don't think you should be, then you're either a user who has arrived at new installation of Tomcat, or you're an administrator who hasn't got his/her setup quite right. Providing the latter is the case, please refer to the <a href="docs">Tomcat Documentation</a> for more detailed setup and administration information than is found in the INSTALL file.</p>
+          <p>where "$CATALINA_HOME" is the root of the Tomcat installation directory. If you're seeing this page, and you don't think you should be, then either you're either a user who has arrived at new installation of Tomcat, or you're an administrator who hasn't got his/her setup quite right. Providing the latter is the case, please refer to the <a href="tomcat-docs">Tomcat Documentation</a> for more detailed setup and administration information than is found in the INSTALL file.</p>
 
-            <p><b>NOTE: For security reasons, using the manager webapp
+            <p><b>NOTE:</b> This page is precompiled. If you change it, this page will not change since
+                  it was compiled into a servlet at build time.
+                  (See <tt>$CATALINA_HOME/webapps/ROOT/WEB-INF/web.xml</tt> as to how it was mapped.)
+            </p>
+
+            <p><b>NOTE: For security reasons, using the administration webapp
+            is restricted to users with role "admin". The manager webapp
             is restricted to users with role "manager".</b>
             Users are defined in <code>$CATALINA_HOME/conf/tomcat-users.xml</code>.</p>
 
-            <p>Included with this release are a host of sample Servlets and JSPs (with associated source code), extensive documentation, and an introductory guide to developing web applications.</p>
+            <p>Included with this release are a host of sample Servlets and JSPs (with associated source code), extensive documentation (including the Servlet 2.4 and JSP 2.0 API JavaDoc), and an introductory guide to developing web applications.</p>
 
             <p>Tomcat mailing lists are available at the Tomcat project web site:</p>
 

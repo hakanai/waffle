@@ -101,14 +101,21 @@
             <listItem>              
               <externalLink>
                 <linkUri>http://wix.sourceforge.net</linkUri>
-                <linkText>Windows Installer Xml (WIX) 3.5</linkText>
+                <linkText>Windows Installer Xml (WIX) 3.0</linkText>
               </externalLink>
             </listItem>
             <listItem>
               <externalLink>
+                <linkUri>http://www.codeplex.com/Sandcastle</linkUri>
+                <linkText>SandCastle 2.4 (May 2008)</linkText>
+              </externalLink>
+              + SandCastle Styles Project 2.4 patch
+            </listItem>
+            <listItem>
+              <externalLink>
                 <linkUri>http://www.codeplex.com/SHFB</linkUri>
-                <linkText>Sandcastle Help File Builder 1.9.3.0</linkText>
-              </externalLink>, which includes HTML Help Workshop and Sandcastle.
+                <linkText>Sandcastle Help File Builder 1.8 (Alpha)</linkText>
+              </externalLink>
             </listItem>
           </list>
         </para>
