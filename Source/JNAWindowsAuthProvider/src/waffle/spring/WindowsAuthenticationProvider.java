@@ -15,12 +15,14 @@ package waffle.spring;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.springframework.security.authentication.AuthenticationProvider;
-import org.springframework.security.authentication.AuthenticationServiceException;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.providers.AuthenticationProvider;
+import org.springframework.security.AuthenticationServiceException;
+
+import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
+
+import org.springframework.security.Authentication;
+import org.springframework.security.AuthenticationException;
+import org.springframework.security.GrantedAuthority;
 
 import waffle.servlet.WindowsPrincipal;
 import waffle.windows.auth.IWindowsAuthProvider;
@@ -57,7 +59,7 @@ public class WindowsAuthenticationProvider implements AuthenticationProvider {
 			}
 			
 	        WindowsPrincipal windowsPrincipal = new WindowsPrincipal(windowsIdentity, _principalFormat, _roleFormat);
-			_log.debug("roles: " + windowsPrincipal.getRolesString());
+			_log.debug("roles: " + windowsPrincipal.getRolesString());			
 			
 	        WindowsAuthenticationToken token = new WindowsAuthenticationToken(
 	            windowsPrincipal,
@@ -71,10 +73,12 @@ public class WindowsAuthenticationProvider implements AuthenticationProvider {
         }
 	}
 
-	public boolean supports(Class<? extends Object> authentication) {
-        return (UsernamePasswordAuthenticationToken.class.isAssignableFrom(authentication));
-	}
-	
+    @SuppressWarnings({ "rawtypes", "unchecked" })
+	public boolean supports(Class c) {        
+        Class <Object> obj = c;
+        return (UsernamePasswordAuthenticationToken.class.isAssignableFrom(obj));
+    }
+
 	public PrincipalFormat getPrincipalFormat() {
 		return _principalFormat;
 	}

@@ -13,8 +13,8 @@
 *******************************************************************************/
 package waffle.spring;
 
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.GrantedAuthorityImpl;
+import org.springframework.security.GrantedAuthority;
+import org.springframework.security.GrantedAuthorityImpl;
 
 import waffle.windows.auth.WindowsAccount;
 

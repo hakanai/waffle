@@ -16,13 +16,14 @@ package waffle.spring;
 import java.io.IOException;
 
 import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.web.AuthenticationEntryPoint;
+import org.springframework.security.AuthenticationException;
+import org.springframework.security.ui.AuthenticationEntryPoint;
 
 import waffle.servlet.spi.SecurityFilterProviderCollection;
 
@@ -39,16 +40,18 @@ public class NegotiateSecurityFilterEntryPoint implements AuthenticationEntryPoi
 		_log.debug("[waffle.spring.NegotiateEntryPoint] loaded");
 	}
 	
-    public void commence(HttpServletRequest request, HttpServletResponse response,
-            AuthenticationException ex) throws IOException, ServletException {
-    	
-    	_log.debug("[waffle.spring.NegotiateEntryPoint] commence");
-    	
+    public void commence(ServletRequest sreq, ServletResponse srep,
+    		AuthenticationException arg2) throws IOException, ServletException {
+
+        HttpServletResponse response = (HttpServletResponse) srep;
+
+        _log.debug("[waffle.spring.NegotiateEntryPoint] commence");
+
     	if (_provider == null) {
     		throw new ServletException("Missing NegotiateEntryPoint.Provider");
     	}
-    	
-        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+
+         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
     	response.setHeader("Connection", "keep-alive");
         _provider.sendUnauthorized(response);
         response.flushBuffer();

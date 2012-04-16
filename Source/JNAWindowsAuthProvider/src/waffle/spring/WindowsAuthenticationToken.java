@@ -16,9 +16,9 @@ package waffle.spring;
 import java.util.ArrayList;
 import java.util.Collection;
 
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.GrantedAuthorityImpl;
+import org.springframework.security.Authentication;
+import org.springframework.security.GrantedAuthority;
+import org.springframework.security.GrantedAuthorityImpl;
 
 import waffle.servlet.WindowsPrincipal;
 import waffle.windows.auth.WindowsAccount;
@@ -28,7 +28,7 @@ import waffle.windows.auth.WindowsAccount;
  * @author dblock[at]dblock[dot]org
  */
 public class WindowsAuthenticationToken implements Authentication {
-    
+
 	/**
 	 * The {@link GrantedAuthorityFactory} that is used by default
 	 * if a custom one is not specified.
@@ -80,9 +80,11 @@ public class WindowsAuthenticationToken implements Authentication {
 		}
 	}
 	
-	public Collection<GrantedAuthority> getAuthorities() {
-		return _authorities;
-	}
+    public GrantedAuthority[] getAuthorities() {
+        GrantedAuthority[] grantedAuthorities = new GrantedAuthority[_authorities.size()];
+        _authorities.toArray(grantedAuthorities);
+        return  grantedAuthorities;
+    }
 
 	public Object getCredentials() {
 		return null;

@@ -13,7 +13,7 @@
 *******************************************************************************/
 package waffle.spring;
 
-import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.AuthenticationException;
 
 /**
  * Guest login is disabled authentication exception.

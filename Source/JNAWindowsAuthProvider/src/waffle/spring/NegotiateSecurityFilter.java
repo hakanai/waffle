@@ -25,8 +25,9 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.Authentication;
+import org.springframework.security.GrantedAuthority;
+import org.springframework.security.context.SecurityContextHolder;
 import org.springframework.web.filter.GenericFilterBean;
 
 import waffle.servlet.WindowsPrincipal;
@@ -54,7 +55,7 @@ public class NegotiateSecurityFilter extends GenericFilterBean {
 		_log.debug("[waffle.spring.NegotiateSecurityFilter] loaded");
 	}
     
-    @Override
+
     public void doFilter(ServletRequest req, ServletResponse res,
             FilterChain chain) throws IOException, ServletException {
     	
@@ -100,11 +101,7 @@ public class NegotiateSecurityFilter extends GenericFilterBean {
 				
 				_log.debug("roles: " + principal.getRolesString());			
 				
-				WindowsAuthenticationToken authentication = new WindowsAuthenticationToken(
-					principal,
-					_grantedAuthorityFactory,
-					_defaultGrantedAuthority);
-				
+				Authentication authentication = new WindowsAuthenticationToken(principal);				
 				SecurityContextHolder.getContext().setAuthentication(authentication);
 
 				_log.info("successfully logged in user: " + windowsIdentity.getFqn());
@@ -182,7 +179,7 @@ public class NegotiateSecurityFilter extends GenericFilterBean {
 	
 	public GrantedAuthorityFactory getGrantedAuthorityFactory() {
 		return _grantedAuthorityFactory;
-	}
+}
 
 	public void setGrantedAuthorityFactory(GrantedAuthorityFactory grantedAuthorityFactory) {
 		_grantedAuthorityFactory = grantedAuthorityFactory;

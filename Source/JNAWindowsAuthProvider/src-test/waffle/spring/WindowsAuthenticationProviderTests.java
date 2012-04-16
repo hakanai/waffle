@@ -14,17 +14,15 @@
 package waffle.spring;
 
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Iterator;
 
 import junit.framework.TestCase;
 
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
-import org.springframework.security.authentication.AuthenticationServiceException;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.Authentication;
+import org.springframework.security.AuthenticationServiceException;
+import org.springframework.security.GrantedAuthority;
+import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
 
 import waffle.mock.MockWindowsAuthProvider;
 import waffle.mock.MockWindowsIdentity;
@@ -69,12 +67,11 @@ public class WindowsAuthenticationProviderTests extends TestCase {
 		Authentication authenticated = _provider.authenticate(authentication);
 		assertNotNull(authenticated);
 		assertTrue(authenticated.isAuthenticated());
-		Collection<GrantedAuthority> authorities = authenticated.getAuthorities();
-		Iterator<GrantedAuthority> authoritiesIterator = authorities.iterator();
-		assertEquals(3, authorities.size());
-		assertEquals("ROLE_USER", authoritiesIterator.next().getAuthority());
-		assertEquals("ROLE_USERS", authoritiesIterator.next().getAuthority());
-		assertEquals("ROLE_EVERYONE", authoritiesIterator.next().getAuthority());
+		GrantedAuthority[] authorities = authenticated.getAuthorities();
+		assertEquals(3, authorities.length);
+		assertEquals("ROLE_USER", authorities[0].getAuthority());
+		assertEquals("ROLE_USERS", authorities[1].getAuthority());
+		assertEquals("ROLE_EVERYONE", authorities[2].getAuthority());
 		assertTrue(authenticated.getPrincipal() instanceof WindowsPrincipal);
 	}
 	
@@ -89,11 +86,10 @@ public class WindowsAuthenticationProviderTests extends TestCase {
 	    Authentication authenticated = _provider.authenticate(authentication);
 	    assertNotNull(authenticated);
 	    assertTrue(authenticated.isAuthenticated());
-	    Collection<GrantedAuthority> authorities = authenticated.getAuthorities();
-	    Iterator<GrantedAuthority> authoritiesIterator = authorities.iterator();
-	    assertEquals(2, authorities.size());
-	    assertEquals("Users", authoritiesIterator.next().getAuthority());
-	    assertEquals("Everyone", authoritiesIterator.next().getAuthority());
+	    GrantedAuthority[] authorities = authenticated.getAuthorities();
+	    assertEquals(2, authorities.length);
+	    assertEquals("Users", authorities[0].getAuthority());
+	    assertEquals("Everyone", authorities[1].getAuthority());
 	    assertTrue(authenticated.getPrincipal() instanceof WindowsPrincipal);
 	}
 	

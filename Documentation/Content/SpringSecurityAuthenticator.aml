@@ -59,7 +59,7 @@
               <code lang="xml">
                 <![CDATA[
 <bean id="waffleSpringAuthenticationProvider" class="waffle.spring.WindowsAuthenticationProvider">
-	<property name="AuthProvider" ref="waffleWindowsAuthProvider" />
+	<property name="authProvider" ref="waffleWindowsAuthProvider" />
 </bean>
 ]]>
               </code>
@@ -146,10 +146,10 @@
           <code lang="xml">
             <![CDATA[
 <bean id="waffleSpringAuthenticationProvider" class="waffle.spring.WindowsAuthenticationProvider">
-	<property name="AllowGuestLogin" value="false" />
-	<property name="PrincipalFormat" value="fqn" />
-	<property name="RoleFormat" value="both" />
-	<property name="AuthProvider" ref="waffleWindowsAuthProvider" />
+	<property name="allowGuestLogin" value="false" />
+	<property name="principalFormat" value="fqn" />
+	<property name="roleFormat" value="both" />
+	<property name="authProvider" ref="waffleWindowsAuthProvider" />
 </bean>]]>
           </code>
         </para>

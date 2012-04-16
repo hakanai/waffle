@@ -14,15 +14,14 @@
 package waffle.spring;
 
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Iterator;
 import java.util.List;
 
-import org.springframework.security.core.GrantedAuthority;
+import junit.framework.TestCase;
+
+import org.springframework.security.GrantedAuthority;
 
 import waffle.mock.MockWindowsIdentity;
 import waffle.servlet.WindowsPrincipal;
-import junit.framework.TestCase;
 
 /**
  * @author dblock[at]dblock[dot]org
@@ -47,12 +46,11 @@ public class WindowsAuthenticationTokenTests extends TestCase {
 		assertNull(_token.getDetails());
 		assertTrue(_token.isAuthenticated());
 		assertEquals("localhost\\user1", _token.getName());
-		Collection<GrantedAuthority> authorities = _token.getAuthorities();
-		Iterator<GrantedAuthority> authoritiesIterator = authorities.iterator();
-		assertEquals(3, authorities.size());
-		assertEquals("ROLE_USER", authoritiesIterator.next().getAuthority());
-		assertEquals("ROLE_GROUP1", authoritiesIterator.next().getAuthority());
-		assertEquals("ROLE_GROUP2", authoritiesIterator.next().getAuthority());
+		GrantedAuthority[] authorities = _token.getAuthorities();
+		assertEquals(3, authorities.length);
+		assertEquals("ROLE_USER", authorities[0].getAuthority());
+		assertEquals("ROLE_GROUP1", authorities[1].getAuthority());
+		assertEquals("ROLE_GROUP2", authorities[2].getAuthority());
 		assertEquals(_principal, _token.getPrincipal());
 	}
 	
@@ -67,11 +65,10 @@ public class WindowsAuthenticationTokenTests extends TestCase {
 		assertNull(token.getDetails());
 		assertTrue(token.isAuthenticated());
 		assertEquals("localhost\\user1", token.getName());
-		Collection<GrantedAuthority> authorities = token.getAuthorities();
-		Iterator<GrantedAuthority> authoritiesIterator = authorities.iterator();
-		assertEquals(2, authorities.size());
-		assertEquals("group1", authoritiesIterator.next().getAuthority());
-		assertEquals("group2", authoritiesIterator.next().getAuthority());
+		GrantedAuthority[] authorities = token.getAuthorities();
+		assertEquals(2, authorities.length);
+		assertEquals("group1", authorities[0].getAuthority());
+		assertEquals("group2", authorities[1].getAuthority());
 		assertEquals(_principal, token.getPrincipal());
 	}
 	

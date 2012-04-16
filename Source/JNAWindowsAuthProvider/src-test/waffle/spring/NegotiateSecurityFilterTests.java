@@ -14,8 +14,6 @@
 package waffle.spring;
 
 import java.io.IOException;
-import java.util.Collection;
-import java.util.Iterator;
 
 import javax.servlet.ServletException;
 
@@ -23,9 +21,9 @@ import junit.framework.TestCase;
 
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.Authentication;
+import org.springframework.security.GrantedAuthority;
+import org.springframework.security.context.SecurityContextHolder;
 
 import waffle.apache.catalina.SimpleFilterChain;
 import waffle.apache.catalina.SimpleHttpRequest;
@@ -95,13 +93,12 @@ public class NegotiateSecurityFilterTests extends TestCase {
 
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         assertNotNull(auth);
-        Collection<GrantedAuthority> authorities = auth.getAuthorities();
+        GrantedAuthority[] authorities = auth.getAuthorities();
         assertNotNull(authorities);
-        assertEquals(3, authorities.size());
-        Iterator<GrantedAuthority> authoritiesIterator = authorities.iterator();
-        assertEquals("ROLE_USER", authoritiesIterator.next().getAuthority());
-        assertEquals("ROLE_USERS", authoritiesIterator.next().getAuthority());
-        assertEquals("ROLE_EVERYONE", authoritiesIterator.next().getAuthority());
+        assertEquals(3, authorities.length);
+        assertEquals("ROLE_USER", authorities[0].getAuthority());
+        assertEquals("ROLE_USERS", authorities[1].getAuthority());
+        assertEquals("ROLE_EVERYONE", authorities[2].getAuthority());
     	assertEquals(0, response.getHeaderNames().length);
 	}
 	

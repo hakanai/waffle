@@ -10,9 +10,9 @@
 	
 	<!-- waffle authentication provider -->
 	<bean id="waffleSpringAuthenticationProvider" class="waffle.spring.WindowsAuthenticationProvider">
-		<property name="AllowGuestLogin" value="true" />
-		<property name="PrincipalFormat" value="sid" />
-		<property name="RoleFormat" value="both" />
-		<property name="AuthProvider" ref="waffleWindowsAuthProvider" />
+		<property name="allowGuestLogin" value="true" />
+		<property name="principalFormat" value="sid" />
+		<property name="roleFormat" value="both" />
+		<property name="authProvider" ref="waffleWindowsAuthProvider" />
 	</bean>
 </beans>

@@ -15,7 +15,7 @@ package waffle.spring;
 
 import junit.framework.TestCase;
 
-import org.springframework.security.core.authority.GrantedAuthorityImpl;
+import org.springframework.security.GrantedAuthorityImpl;
 
 import waffle.mock.MockWindowsAccount;
 import waffle.windows.auth.WindowsAccount;
