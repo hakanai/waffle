@@ -1,16 +1,9 @@
-/*******************************************************************************
-* Waffle (http://waffle.codeplex.com)
-* 
-* Copyright (c) 2010 Application Security, Inc.
-* 
-* All rights reserved. This program and the accompanying materials
-* are made available under the terms of the Eclipse Public License v1.0
-* which accompanies this distribution, and is available at
-* http://www.eclipse.org/legal/epl-v10.html
-*
-* Contributors:
-*     Application Security, Inc.
-*******************************************************************************/
+/*
+ * Copyright (c) Application Security Inc., 2010
+ * All Rights Reserved
+ * Eclipse Public License (EPLv1)
+ * http://waffle.codeplex.com/license
+ */
 package waffle.servlet;
 
 import java.io.IOException;
@@ -39,7 +32,6 @@ import waffle.servlet.spi.SecurityFilterProviderCollection;
 import waffle.util.AuthorizationHeader;
 import waffle.windows.auth.IWindowsAuthProvider;
 import waffle.windows.auth.IWindowsIdentity;
-import waffle.windows.auth.IWindowsImpersonationContext;
 import waffle.windows.auth.PrincipalFormat;
 import waffle.windows.auth.impl.WindowsAuthProviderImpl;
 
@@ -53,9 +45,8 @@ public class NegotiateSecurityFilter implements Filter {
     private PrincipalFormat _principalFormat = PrincipalFormat.fqn;
     private PrincipalFormat _roleFormat = PrincipalFormat.fqn;
     private SecurityFilterProviderCollection _providers = null;
-	private IWindowsAuthProvider _auth;
+	private IWindowsAuthProvider _auth = new WindowsAuthProviderImpl();
 	private boolean _allowGuestLogin = true;
-	private boolean _impersonate = false;
 	private static final String PRINCIPAL_SESSION_KEY = NegotiateSecurityFilter.class.getName() + ".PRINCIPAL";
 
 	public NegotiateSecurityFilter() {
@@ -100,14 +91,13 @@ public class NegotiateSecurityFilter implements Filter {
 				return;
 			}
 			
-			IWindowsImpersonationContext ctx = null;
+			if (! _allowGuestLogin && windowsIdentity.isGuest()) {
+				_log.warn("guest login disabled: " + windowsIdentity.getFqn());
+				sendUnauthorized(response, true);
+				return;
+			}
+			
 			try {
-				if (! _allowGuestLogin && windowsIdentity.isGuest()) {
-					_log.warn("guest login disabled: " + windowsIdentity.getFqn());
-					sendUnauthorized(response, true);
-					return;
-				}
-				
 				_log.debug("logged in user: " + windowsIdentity.getFqn() + 
 						" (" + windowsIdentity.getSidString() + ")");
 				
@@ -120,14 +110,9 @@ public class NegotiateSecurityFilter implements Filter {
 				if (subject == null) {
 					subject = new Subject();
 				}
-				
-				WindowsPrincipal windowsPrincipal = null;
-				if (_impersonate) {
-					windowsPrincipal = new AutoDisposableWindowsPrincipal(windowsIdentity, _principalFormat, _roleFormat);
-				} else {
-					windowsPrincipal = new WindowsPrincipal(windowsIdentity, 
+							
+				WindowsPrincipal windowsPrincipal = new WindowsPrincipal(windowsIdentity, 
 						_principalFormat, _roleFormat);
-				}
 				
 				_log.debug("roles: " + windowsPrincipal.getRolesString());			
 				subject.getPrincipals().add(windowsPrincipal);
@@ -140,19 +125,9 @@ public class NegotiateSecurityFilter implements Filter {
 				NegotiateRequestWrapper requestWrapper = new NegotiateRequestWrapper(
 						request, windowsPrincipal);
 				
-				if (_impersonate) {
-					_log.debug("impersonating user");
-					ctx = windowsIdentity.impersonate();
-				}
-				
 				chain.doFilter(requestWrapper, response);
 			} finally {
-				if (_impersonate && ctx != null) {
-					_log.debug("terminating impersonation");
-					ctx.RevertToSelf();
-				} else {
-					windowsIdentity.dispose();
-				}
+				windowsIdentity.dispose();
 			}
 
 			return;
@@ -199,30 +174,9 @@ public class NegotiateSecurityFilter implements Filter {
 		if (principal instanceof WindowsPrincipal) {
 			_log.info("previously authenticated Windows user: " + principal.getName());
 			WindowsPrincipal windowsPrincipal = (WindowsPrincipal) principal;
-			
-			if (_impersonate && windowsPrincipal.getIdentity() == null) {
-				// This can happen when the session has been serialized then de-serialized
-				// and because the IWindowsIdentity field is transient. In this case re-ask an
-				// authentication to get a new identity.
-				return false;
-			}
-			
 			NegotiateRequestWrapper requestWrapper = new NegotiateRequestWrapper(
 					request, windowsPrincipal);
-			
-			IWindowsImpersonationContext ctx = null;
-			if (_impersonate) {
-				_log.debug("re-impersonating user");
-				ctx = windowsPrincipal.getIdentity().impersonate();
-			}
-			try {
-				chain.doFilter(requestWrapper, response);
-			} finally {
-				if (_impersonate && ctx != null) {
-					_log.debug("terminating impersonation");
-					ctx.RevertToSelf();
-				}
-			}
+			chain.doFilter(requestWrapper, response);
 		} else {
 			_log.info("previously authenticated user: " + principal.getName());
 			chain.doFilter(request, response);
@@ -230,12 +184,10 @@ public class NegotiateSecurityFilter implements Filter {
 		return true;
 	}
 	
-	@SuppressWarnings("rawtypes")
+	@SuppressWarnings("unchecked")
 	public void init(FilterConfig filterConfig) throws ServletException {
 		Map<String, String> implParameters = new HashMap<String, String>();
 
-		String authProvider = null;
-		String[] providerNames = null;
 		if (filterConfig != null) {
 			Enumeration parameterNames = filterConfig.getInitParameterNames();
 			while(parameterNames.hasMoreElements()) {
@@ -248,38 +200,18 @@ public class NegotiateSecurityFilter implements Filter {
 					_roleFormat = PrincipalFormat.valueOf(parameterValue);
 				} else if (parameterName.equals("allowGuestLogin")) {
 					_allowGuestLogin = Boolean.parseBoolean(parameterValue);
-				} else if (parameterName.equals("impersonate")) {
-					_impersonate = Boolean.parseBoolean(parameterValue);
 				} else if (parameterName.equals("securityFilterProviders")) {
-					providerNames = parameterValue.split("\\s+");
-				} else if (parameterName.equals("authProvider")) {
-					authProvider = parameterValue;
+					_providers = new SecurityFilterProviderCollection(
+							parameterValue.split("\n"), _auth);
 				} else {
 					implParameters.put(parameterName, parameterValue);
 				}
 			}
 		}
 		
-		if (authProvider != null) {
-			try {
-				_auth = (IWindowsAuthProvider) Class.forName(authProvider).getConstructor().newInstance();
-			} catch (Exception e) {
-				_log.error("error loading '" + authProvider + "': " + e.getMessage());
-				throw new ServletException(e);
-			}
-		}
-		
-		if (_auth == null) {
-			_auth = new WindowsAuthProviderImpl();
-		}
-		
-		if (providerNames != null) {
-			_providers = new SecurityFilterProviderCollection(providerNames, _auth);
-		}
-		
 		// create default providers if none specified
 		if (_providers == null) {
-			_log.debug("initializing default security filter providers");
+			_log.debug("initializing default secuirty filter providers");
 			_providers = new SecurityFilterProviderCollection(_auth);
 		}
 		
@@ -397,21 +329,6 @@ public class NegotiateSecurityFilter implements Filter {
 	 */
 	public boolean getAllowGuestLogin() {
 		return _allowGuestLogin;
-	}
-	
-	/**
-	 * Enable/Disable impersonation
-	 * @param impersonate true to enable impersonation, false otherwise
-	 */
-	public void setImpersonate(boolean impersonate) {
-		_impersonate = impersonate;
-	}
-	
-	/**
-	 * @return true if impersonation is enabled, false otherwise
-	 */
-	public boolean getImpersonate() {
-		return _impersonate;
 	}
 	
 	/**

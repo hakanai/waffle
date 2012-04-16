@@ -82,46 +82,52 @@ namespace Waffle.Windows.AuthProvider
         {
             get
             {
-                IntPtr bufptr = IntPtr.Zero;
-                try
+                int rc = 0;
+                int size = 1024;
+                int totalentries = 0;
+                IntPtr bufptr = new IntPtr(size);
+                do
                 {
-                    int rc = 0;
                     int entriesread = 0;
-                    int totalentries = 0;
                     int resume_handle = 0;
                     rc = Netapi32.NetLocalGroupEnum(
                         _computerName,
                         0,
                         out bufptr,
-                        LMCons.MAX_PREFERRED_LENGTH,
+                        size - 1,
                         out entriesread,
                         out totalentries,
                         ref resume_handle
                     );
 
-                    if (rc != Netapi32.NERR_Success || bufptr == IntPtr.Zero)
+                    switch (rc)
                     {
-                        throw new Win32Exception(rc);
+                        //If there is more data, double the size of the buffer...
+                        case Netapi32.NERR_BufTooSmall:
+                        case Windows.ERROR_MORE_DATA:
+                            size *= 2;
+                            bufptr = new IntPtr(size);
+                            resume_handle = 0;
+                            break;
+                        case Netapi32.NERR_Success:
+                            break;
+                        case Netapi32.NERR_InvalidComputer:                            
+                        default:
+                            throw new Win32Exception(rc);
                     }
+                }
+                while (rc == Windows.ERROR_MORE_DATA);
 
-                    string[] groups = new string[totalentries];
-                    IntPtr iter = bufptr;
-                    for (int i = 0; i < totalentries; i++)
-                    {
-                        Netapi32.LOCALGROUP_USERS_INFO_0 group = new Netapi32.LOCALGROUP_USERS_INFO_0();
-                        group = (Netapi32.LOCALGROUP_USERS_INFO_0)Marshal.PtrToStructure(iter, typeof(Netapi32.LOCALGROUP_USERS_INFO_0));
-                        groups[i] = string.Format(@"{0}\{1}", _computerName, group.name);
-                        iter = (IntPtr)((int)iter + Marshal.SizeOf(typeof(Netapi32.LOCALGROUP_USERS_INFO_0)));
-                    }
-                    return groups;
-                }
-                finally
+                string[] groups = new string[totalentries];
+                IntPtr iter = bufptr;
+                for (int i = 0; i < totalentries; i++)
                 {
-                    if (bufptr != IntPtr.Zero)
-                    {
-                        Netapi32.NetApiBufferFree(bufptr);
-                    }
+                    Netapi32.LOCALGROUP_USERS_INFO_0 group = new Netapi32.LOCALGROUP_USERS_INFO_0();
+                    group = (Netapi32.LOCALGROUP_USERS_INFO_0)Marshal.PtrToStructure(iter, typeof(Netapi32.LOCALGROUP_USERS_INFO_0));
+                    groups[i] = string.Format(@"{0}\{1}", _computerName, group.name);
+                    iter = (IntPtr)((int)iter + Marshal.SizeOf(typeof(Netapi32.LOCALGROUP_USERS_INFO_0)));
                 }
+                return groups;
             }
         }
     }

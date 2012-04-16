@@ -1,24 +1,16 @@
-/*******************************************************************************
-* Waffle (http://waffle.codeplex.com)
-* 
-* Copyright (c) 2010 Application Security, Inc.
-* 
-* All rights reserved. This program and the accompanying materials
-* are made available under the terms of the Eclipse Public License v1.0
-* which accompanies this distribution, and is available at
-* http://www.eclipse.org/legal/epl-v10.html
-*
-* Contributors:
-*     Application Security, Inc.
-*******************************************************************************/
+/*
+ * Copyright (c) Application Security Inc., 2010
+ * All Rights Reserved
+ * Eclipse Public License (EPLv1)
+ * http://waffle.codeplex.com/license
+ */
 package waffle.windows.auth.impl;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.ConcurrentMap;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.ConcurrentHashMap;
 
 import waffle.windows.auth.IWindowsAccount;
 import waffle.windows.auth.IWindowsAuthProvider;
@@ -28,19 +20,18 @@ import waffle.windows.auth.IWindowsDomain;
 import waffle.windows.auth.IWindowsIdentity;
 import waffle.windows.auth.IWindowsSecurityContext;
 
-import com.google.common.collect.MapMaker;
 import com.sun.jna.NativeLong;
 import com.sun.jna.platform.win32.Advapi32;
 import com.sun.jna.platform.win32.Kernel32;
 import com.sun.jna.platform.win32.Netapi32Util;
-import com.sun.jna.platform.win32.Netapi32Util.DomainTrust;
 import com.sun.jna.platform.win32.Secur32;
 import com.sun.jna.platform.win32.Sspi;
-import com.sun.jna.platform.win32.Sspi.CtxtHandle;
-import com.sun.jna.platform.win32.Sspi.SecBufferDesc;
 import com.sun.jna.platform.win32.W32Errors;
 import com.sun.jna.platform.win32.Win32Exception;
 import com.sun.jna.platform.win32.WinBase;
+import com.sun.jna.platform.win32.Netapi32Util.DomainTrust;
+import com.sun.jna.platform.win32.Sspi.CtxtHandle;
+import com.sun.jna.platform.win32.Sspi.SecBufferDesc;
 import com.sun.jna.platform.win32.WinNT.HANDLEByReference;
 import com.sun.jna.ptr.NativeLongByReference;
 
@@ -50,30 +41,11 @@ import com.sun.jna.ptr.NativeLongByReference;
  */
 public class WindowsAuthProviderImpl implements IWindowsAuthProvider {
 	
-	ConcurrentMap<String, CtxtHandle> _continueContexts = null;
+	private ConcurrentHashMap<String, CtxtHandle> _continueContexts = 
+		new ConcurrentHashMap<String, CtxtHandle>();
 	
-	public WindowsAuthProviderImpl() {
-		this(30);
-	}
-	
-	/**
-	 * A Windows authentication provider.
-	 * @param continueContextsTimeout
-	 *  Timeout for security contexts in seconds.
-	 */
-	public WindowsAuthProviderImpl(int continueContextsTimeout) {
-		_continueContexts = new MapMaker()
-			.expiration(continueContextsTimeout, TimeUnit.SECONDS)
-			.makeMap();
-	}
-
 	public IWindowsSecurityContext acceptSecurityToken(String connectionId, byte[] token, String securityPackage) {
 
-		if (token == null || token.length == 0) {
-        	_continueContexts.remove(connectionId);
-            throw new Win32Exception(W32Errors.SEC_E_INVALID_TOKEN);			
-		}
-		
         IWindowsCredentialsHandle serverCredential = new WindowsCredentialsHandleImpl(
                 null, Sspi.SECPKG_CRED_INBOUND, securityPackage);
         serverCredential.initialize();
@@ -175,14 +147,5 @@ public class WindowsAuthProviderImpl implements IWindowsAuthProvider {
 
 	public void resetSecurityToken(String connectionId) {
     	_continueContexts.remove(connectionId);
-	}
-	
-	/**
-	 * Number of elements in the continue contexts map.
-	 * @return
-	 *  Number of elements in the hash map.
-	 */
-	public int getContinueContextsSize() {
-		return _continueContexts.size();
 	}
 }

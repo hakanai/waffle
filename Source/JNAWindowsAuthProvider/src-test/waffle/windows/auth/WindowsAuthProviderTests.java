@@ -1,22 +1,12 @@
-/*******************************************************************************
-* Waffle (http://waffle.codeplex.com)
-* 
-* Copyright (c) 2010 Application Security, Inc.
-* 
-* All rights reserved. This program and the accompanying materials
-* are made available under the terms of the Eclipse Public License v1.0
-* which accompanies this distribution, and is available at
-* http://www.eclipse.org/legal/epl-v10.html
-*
-* Contributors:
-*     Application Security, Inc.
-*******************************************************************************/
+/*
+ * Copyright (c) Application Security Inc., 2010
+ * All Rights Reserved
+ * Eclipse Public License (EPLv1)
+ * http://waffle.codeplex.com/license
+ */
 package waffle.windows.auth;
 
 import junit.framework.TestCase;
-import waffle.mock.MockWindowsAccount;
-import waffle.util.Base64;
-import waffle.windows.auth.impl.WindowsAccountImpl;
 import waffle.windows.auth.impl.WindowsAuthProviderImpl;
 import waffle.windows.auth.impl.WindowsCredentialsHandleImpl;
 import waffle.windows.auth.impl.WindowsSecurityContextImpl;
@@ -72,8 +62,8 @@ public class WindowsAuthProviderTests extends TestCase {
 	
 	public void testImpersonateLoggedOnUser() {
     	LMAccess.USER_INFO_1 userInfo = new LMAccess.USER_INFO_1();
-    	userInfo.usri1_name = new WString(MockWindowsAccount.TEST_USER_NAME);
-    	userInfo.usri1_password = new WString(MockWindowsAccount.TEST_PASSWORD);
+    	userInfo.usri1_name = new WString("WaffleTestUser");
+    	userInfo.usri1_password = new WString("!WAFFLEP$$Wrd0");
     	userInfo.usri1_priv = LMAccess.USER_PRIV_USER;
     	assertEquals(LMErr.NERR_Success, Netapi32.INSTANCE.NetUserAdd(null, 1, userInfo, null));
 		try {
@@ -120,7 +110,6 @@ public class WindowsAuthProviderTests extends TestCase {
 	
 	public void testAcceptSecurityToken() {
 		String securityPackage = "Negotiate";
-		String targetName = "localhost";
 		IWindowsCredentialsHandle clientCredentials = null;
 		WindowsSecurityContextImpl clientContext = null;
         IWindowsSecurityContext serverContext = null;
@@ -130,27 +119,26 @@ public class WindowsAuthProviderTests extends TestCase {
 			clientCredentials.initialize();
 			// initial client security context
 			clientContext = new WindowsSecurityContextImpl();
-			clientContext.setPrincipalName(WindowsAccountImpl.getCurrentUsername());
+			clientContext.setPrincipalName(Advapi32Util.getUserName());
 			clientContext.setCredentialsHandle(clientCredentials.getHandle());
 			clientContext.setSecurityPackage(securityPackage);
-			clientContext.initialize(null, null, targetName);
+			clientContext.initialize();
 			// accept on the server
 	        WindowsAuthProviderImpl provider = new WindowsAuthProviderImpl();
 	        String connectionId = "testConnection-" + Thread.currentThread().getId();
 	        do
-	        {
-	        	// accept the token on the server
-	            serverContext = provider.acceptSecurityToken(connectionId, clientContext.getToken(), 
-	            		securityPackage);
-
-	        	if (serverContext != null && serverContext.getContinue()) {
+	        {        	
+	        	if (serverContext != null) {
 	        		// initialize on the client
 	                SecBufferDesc continueToken = new SecBufferDesc(Sspi.SECBUFFER_TOKEN, 
 	            		serverContext.getToken());
-	                clientContext.initialize(clientContext.getHandle(), continueToken, targetName);	                
-                    debug("Token: " + Base64.encode(serverContext.getToken()));
+	                clientContext.initialize(clientContext.getHandle(), continueToken);
 	        	}
-	        	            
+	        	
+	        	// accept the token on the server
+	            serverContext = provider.acceptSecurityToken(connectionId, clientContext.getToken(), 
+	            		securityPackage);
+	            
 	        } while (clientContext.getContinue() || serverContext.getContinue());
 	        
 	        assertTrue(serverContext.getIdentity().getFqn().length() > 0);
@@ -172,49 +160,8 @@ public class WindowsAuthProviderTests extends TestCase {
 		}
 	}
 	
-	public void testSecurityContextsExpire() throws InterruptedException {
-		String securityPackage = "Negotiate";
-		IWindowsCredentialsHandle clientCredentials = null;
-		WindowsSecurityContextImpl clientContext = null;
-        IWindowsSecurityContext serverContext = null;
-		try {
-			// client credentials handle
-			clientCredentials = WindowsCredentialsHandleImpl.getCurrent(securityPackage);
-			clientCredentials.initialize();
-			// initial client security context
-			clientContext = new WindowsSecurityContextImpl();
-			clientContext.setPrincipalName(WindowsAccountImpl.getCurrentUsername());
-			clientContext.setCredentialsHandle(clientCredentials.getHandle());
-			clientContext.setSecurityPackage(securityPackage);
-			clientContext.initialize(null, null, WindowsAccountImpl.getCurrentUsername());
-			// accept on the server
-	        WindowsAuthProviderImpl provider = new WindowsAuthProviderImpl(1);
-	        int max = 100;
-	        for(int i = 0; i < max; i++) {
-		        Thread.sleep(25);
-	        	String connectionId = "testConnection_" + i;
-	        	serverContext = provider.acceptSecurityToken(connectionId, 
-	        			clientContext.getToken(), securityPackage);
-	        	assertTrue(provider.getContinueContextsSize() > 0);
-	        }
-	        debug("Cached security contexts: " + provider.getContinueContextsSize());
-	        assertFalse(max == provider.getContinueContextsSize());	        
-		} finally {
-			if (serverContext != null) {
-				serverContext.dispose();
-			}
-			if (clientContext != null) {
-				clientContext.dispose();
-			}
-			if (clientCredentials != null) {
-				clientCredentials.dispose();
-			}
-		}		
-	}
-	
 	public void testAcceptAndImpersonateSecurityToken() {
 		String securityPackage = "Negotiate";
-		String targetName = "localhost";
 		IWindowsCredentialsHandle clientCredentials = null;
 		WindowsSecurityContextImpl clientContext = null;
         IWindowsSecurityContext serverContext = null;
@@ -224,26 +171,26 @@ public class WindowsAuthProviderTests extends TestCase {
 			clientCredentials.initialize();
 			// initial client security context
 			clientContext = new WindowsSecurityContextImpl();
-			clientContext.setPrincipalName(WindowsAccountImpl.getCurrentUsername());
+			clientContext.setPrincipalName(Advapi32Util.getUserName());
 			clientContext.setCredentialsHandle(clientCredentials.getHandle());
 			clientContext.setSecurityPackage(securityPackage);
-			clientContext.initialize(null, null, targetName);
+			clientContext.initialize();
 			// accept on the server
 	        WindowsAuthProviderImpl provider = new WindowsAuthProviderImpl();
 	        String connectionId = "testConnection";
 	        do
 	        {        	
+	        	if (serverContext != null) {
+	        		// initialize on the client
+	                SecBufferDesc continueToken = new SecBufferDesc(Sspi.SECBUFFER_TOKEN, 
+	            		serverContext.getToken());
+	                clientContext.initialize(clientContext.getHandle(), continueToken);
+	        	}
+	        	
 	        	// accept the token on the server
 	            serverContext = provider.acceptSecurityToken(connectionId, clientContext.getToken(), 
 	            		securityPackage);
 	            
-	        	if (serverContext != null && serverContext.getContinue()) {
-	        		// initialize on the client
-	                SecBufferDesc continueToken = new SecBufferDesc(Sspi.SECBUFFER_TOKEN, 
-	            		serverContext.getToken());
-	                clientContext.initialize(clientContext.getHandle(), continueToken, targetName);
-	        	}
-	        	
 	        } while (clientContext.getContinue() || serverContext.getContinue());
 	        
 	        assertTrue(serverContext.getIdentity().getFqn().length() > 0);

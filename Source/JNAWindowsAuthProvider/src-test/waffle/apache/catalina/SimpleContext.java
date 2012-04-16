@@ -1,16 +1,9 @@
-/*******************************************************************************
-* Waffle (http://waffle.codeplex.com)
-* 
-* Copyright (c) 2010 Application Security, Inc.
-* 
-* All rights reserved. This program and the accompanying materials
-* are made available under the terms of the Eclipse Public License v1.0
-* which accompanies this distribution, and is available at
-* http://www.eclipse.org/legal/epl-v10.html
-*
-* Contributors:
-*     Application Security, Inc.
-*******************************************************************************/
+/*
+ * Copyright (c) Application Security Inc., 2010
+ * All Rights Reserved
+ * Eclipse Public License (EPLv1)
+ * http://waffle.codeplex.com/license
+ */
 package waffle.apache.catalina;
 
 import java.beans.PropertyChangeListener;
@@ -693,29 +686,5 @@ public class SimpleContext implements Context {
 	
 	public void setResources(DirContext arg0) {
 
-	}
-
-	public String getSessionCookieDomain() {
-		return null;
-	}
-
-	public String getSessionCookieName() {
-		return null;
-	}
-
-	public String getSessionCookiePath() {
-		return null;
-	}
-
-	public void setSessionCookieDomain(String arg0) {
-		
-	}
-
-	public void setSessionCookieName(String arg0) {
-		
-	}
-
-	public void setSessionCookiePath(String arg0) {
-		
 	}
 }

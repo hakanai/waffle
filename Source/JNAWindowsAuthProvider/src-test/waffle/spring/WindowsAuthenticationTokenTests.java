@@ -1,16 +1,9 @@
-/*******************************************************************************
-* Waffle (http://waffle.codeplex.com)
-* 
-* Copyright (c) 2010 Application Security, Inc.
-* 
-* All rights reserved. This program and the accompanying materials
-* are made available under the terms of the Eclipse Public License v1.0
-* which accompanies this distribution, and is available at
-* http://www.eclipse.org/legal/epl-v10.html
-*
-* Contributors:
-*     Application Security, Inc.
-*******************************************************************************/
+/*
+ * Copyright (c) Application Security Inc., 2010
+ * All Rights Reserved
+ * Eclipse Public License (EPLv1)
+ * http://waffle.codeplex.com/license
+ */
 package waffle.spring;
 
 import java.util.ArrayList;
@@ -54,25 +47,6 @@ public class WindowsAuthenticationTokenTests extends TestCase {
 		assertEquals("ROLE_GROUP1", authoritiesIterator.next().getAuthority());
 		assertEquals("ROLE_GROUP2", authoritiesIterator.next().getAuthority());
 		assertEquals(_principal, _token.getPrincipal());
-	}
-	
-	public void testCustomGrantedAuthorityFactory() {
-		
-		WindowsAuthenticationToken token = new WindowsAuthenticationToken(
-			_principal,
-			new FqnGrantedAuthorityFactory(null, false),
-			null);
-		
-		assertNull(token.getCredentials());
-		assertNull(token.getDetails());
-		assertTrue(token.isAuthenticated());
-		assertEquals("localhost\\user1", token.getName());
-		Collection<GrantedAuthority> authorities = token.getAuthorities();
-		Iterator<GrantedAuthority> authoritiesIterator = authorities.iterator();
-		assertEquals(2, authorities.size());
-		assertEquals("group1", authoritiesIterator.next().getAuthority());
-		assertEquals("group2", authoritiesIterator.next().getAuthority());
-		assertEquals(_principal, token.getPrincipal());
 	}
 	
 	public void testAuthenticated() {

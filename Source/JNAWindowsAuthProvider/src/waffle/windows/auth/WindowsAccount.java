@@ -1,27 +1,19 @@
-/*******************************************************************************
-* Waffle (http://waffle.codeplex.com)
-* 
-* Copyright (c) 2010 Application Security, Inc.
-* 
-* All rights reserved. This program and the accompanying materials
-* are made available under the terms of the Eclipse Public License v1.0
-* which accompanies this distribution, and is available at
-* http://www.eclipse.org/legal/epl-v10.html
-*
-* Contributors:
-*     Application Security, Inc.
-*******************************************************************************/
+/*
+ * Copyright (c) Application Security Inc., 2010
+ * All Rights Reserved
+ * Eclipse Public License (EPLv1)
+ * http://waffle.codeplex.com/license
+ */
 package waffle.windows.auth;
 
-import java.io.Serializable;
+import waffle.windows.auth.IWindowsAccount;
 
 /**
  * A flattened Windows Account used in a Windows principal.
  * @author dblock[at]dblock[dot]org
  */
-public class WindowsAccount implements Serializable {
+public class WindowsAccount {
 	
-	private static final long serialVersionUID = 1L;
 	private String _sidString;
 	private String _fqn;
 	private String _name;
@@ -48,24 +40,5 @@ public class WindowsAccount implements Serializable {
 
 	public String getDomain() {
 		return _domain;
-	}
-	
-	@Override
-    public boolean equals(Object o) {
-
-		if (this == o) {
-			return true;			
-		}
-		
-		if (! (o instanceof WindowsAccount)) {
-			return false;
-		}
-		
-        return ((WindowsAccount) o).getSidString().equals(getSidString());
-    }
-	
-	@Override
-	public int hashCode() { 
-		return getSidString().hashCode();
 	}
 }

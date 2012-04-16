@@ -1,16 +1,9 @@
-/*******************************************************************************
-* Waffle (http://waffle.codeplex.com)
-* 
-* Copyright (c) 2010 Application Security, Inc.
-* 
-* All rights reserved. This program and the accompanying materials
-* are made available under the terms of the Eclipse Public License v1.0
-* which accompanies this distribution, and is available at
-* http://www.eclipse.org/legal/epl-v10.html
-*
-* Contributors:
-*     Application Security, Inc.
-*******************************************************************************/
+/*
+ * Copyright (c) Application Security Inc., 2010
+ * All Rights Reserved
+ * Eclipse Public License (EPLv1)
+ * http://waffle.codeplex.com/license
+ */
 package waffle.apache.catalina;
 
 import java.security.Principal;
@@ -43,15 +36,7 @@ public class SimpleHttpRequest extends Request implements HttpServletRequest {
 	private Principal _principal = null;
 	
 	public SimpleHttpRequest() {
-		_remotePort = nextRemotePort();
-	}
-	
-	public synchronized static int nextRemotePort() {
-		return ++ _remotePort_s;
-	}
-	
-	public synchronized static void resetRemotePort() {
-		_remotePort_s = 0;
+		_remotePort = ++ _remotePort_s;
 	}
 	
 	@Override
@@ -118,13 +103,6 @@ public class SimpleHttpRequest extends Request implements HttpServletRequest {
 	@Override
 	public void setQueryString(String queryString) {
 		_queryString = queryString;
-		if (_queryString != null) {
-			for (String eachParameter : _queryString.split("[&]")) {
-				String[] pair = eachParameter.split("=");
-				String value = (pair.length == 2) ? pair[1] : "";
-				addParameter(pair[0], value);
-			}
-		}
 	}
 	
 	@Override

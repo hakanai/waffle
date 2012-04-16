@@ -39,17 +39,11 @@
 			<include name="**/*.jar" />
 		</fileset>
 	</path>
-	<path id="guava.classpath">
-		<fileset dir="${thirdparty.dir}/guava">
-			<include name="**/*.jar" />
-		</fileset>
-	</path>
 	<path id="waffle.classpath">
 		<path refid="jna.classpath" />
 		<path refid="tomcat.classpath" />
 		<path refid="commons-logging.classpath" />
 		<path refid="spring.classpath" />
-		<path refid="guava.classpath" />
 	</path>
 	<macrodef name="compile">
 		<attribute name="optimize" />
@@ -58,8 +52,7 @@
 			<delete dir="${waffle.lib}" />
 			<mkdir dir="${waffle.lib}" />
 			<javac target="${waffle.java.version}" srcdir="${waffle.src}"
-				destdir="${waffle.lib}" optimize="@{optimize}" debug="@{debug}" 
-				includeantruntime="false">
+				destdir="${waffle.lib}" optimize="@{optimize}" debug="@{debug}">
 				<classpath refid="waffle.classpath" />
 				<include name="**/*.java" />
 			</javac>
@@ -85,7 +78,7 @@
 	<target name="compile-tests">
 		<mkdir dir="${waffle.test.lib}" />
 		<javac target="${waffle.java.version}" srcdir="${waffle.test.src}"
-			destdir="${waffle.test.lib}" optimize="no" debug="yes" includeantruntime="false">
+			destdir="${waffle.test.lib}" optimize="no" debug="yes">
 			<classpath refid="waffle.test.classpath" />
 			<include name="**/*.java" />
 		</javac>
@@ -162,7 +155,7 @@
 			<manifest>
 				<attribute name="Version" value="${waffle.version}" />
 				<attribute name="Created-By" value="${waffle.copyright}" />
-			</manifest>		
+			</manifest>
 		</jar>
 		<jar jarfile="${waffle.build}/waffle-src.zip">
 			<fileset dir="${waffle.src}">

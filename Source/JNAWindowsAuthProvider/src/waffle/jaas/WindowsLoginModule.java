@@ -1,16 +1,9 @@
-/*******************************************************************************
-* Waffle (http://waffle.codeplex.com)
-* 
-* Copyright (c) 2010 Application Security, Inc.
-* 
-* All rights reserved. This program and the accompanying materials
-* are made available under the terms of the Eclipse Public License v1.0
-* which accompanies this distribution, and is available at
-* http://www.eclipse.org/legal/epl-v10.html
-*
-* Contributors:
-*     Application Security, Inc.
-*******************************************************************************/
+/*
+ * Copyright (c) Application Security Inc., 2010
+ * All Rights Reserved
+ * Eclipse Public License (EPLv1)
+ * http://waffle.codeplex.com/license
+ */
 package waffle.jaas;
 
 import java.security.Principal;
@@ -108,13 +101,13 @@ public class WindowsLoginModule implements LoginModule {
         	throw new LoginException(e.getMessage());
         }
         
+		// disable guest login
+		if (! _allowGuestLogin && windowsIdentity.isGuest()) {
+			debug("guest login disabled: " + windowsIdentity.getFqn());
+			throw new LoginException("Guest login disabled");			
+		}
+        
         try {
-			// disable guest login
-			if (! _allowGuestLogin && windowsIdentity.isGuest()) {
-				debug("guest login disabled: " + windowsIdentity.getFqn());
-				throw new LoginException("Guest login disabled");			
-			}
-			
 	        _principals = new LinkedHashSet<Principal>();
 	        _principals.addAll(getUserPrincipals(windowsIdentity, _principalFormat));
 	        if (_roleFormat != PrincipalFormat.none) {

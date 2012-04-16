@@ -1,16 +1,9 @@
-/*******************************************************************************
-* Waffle (http://waffle.codeplex.com)
-* 
-* Copyright (c) 2010 Application Security, Inc.
-* 
-* All rights reserved. This program and the accompanying materials
-* are made available under the terms of the Eclipse Public License v1.0
-* which accompanies this distribution, and is available at
-* http://www.eclipse.org/legal/epl-v10.html
-*
-* Contributors:
-*     Application Security, Inc.
-*******************************************************************************/
+/*
+ * Copyright (c) Application Security Inc., 2010
+ * All Rights Reserved
+ * Eclipse Public License (EPLv1)
+ * http://waffle.codeplex.com/license
+ */
 package waffle.spring;
 
 import java.util.ArrayList;
@@ -76,25 +69,6 @@ public class WindowsAuthenticationProviderTests extends TestCase {
 		assertEquals("ROLE_USERS", authoritiesIterator.next().getAuthority());
 		assertEquals("ROLE_EVERYONE", authoritiesIterator.next().getAuthority());
 		assertTrue(authenticated.getPrincipal() instanceof WindowsPrincipal);
-	}
-	
-	public void testAuthenticateWithCustomGrantedAuthorityFactory() {
-	    _provider.setDefaultGrantedAuthority(null);
-	    _provider.setGrantedAuthorityFactory(new FqnGrantedAuthorityFactory(null, false));
-	    
-	    MockWindowsIdentity mockIdentity = new MockWindowsIdentity(WindowsAccountImpl.getCurrentUsername(), new ArrayList<String>());
-	    WindowsPrincipal principal = new WindowsPrincipal(mockIdentity);
-	    UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(principal, "password");
-	    
-	    Authentication authenticated = _provider.authenticate(authentication);
-	    assertNotNull(authenticated);
-	    assertTrue(authenticated.isAuthenticated());
-	    Collection<GrantedAuthority> authorities = authenticated.getAuthorities();
-	    Iterator<GrantedAuthority> authoritiesIterator = authorities.iterator();
-	    assertEquals(2, authorities.size());
-	    assertEquals("Users", authoritiesIterator.next().getAuthority());
-	    assertEquals("Everyone", authoritiesIterator.next().getAuthority());
-	    assertTrue(authenticated.getPrincipal() instanceof WindowsPrincipal);
 	}
 	
 	public void testGuestIsDisabled() {

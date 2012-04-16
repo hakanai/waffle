@@ -1,16 +1,18 @@
-/*******************************************************************************
-* Waffle (http://waffle.codeplex.com)
-* 
-* Copyright (c) 2010 Application Security, Inc.
-* 
-* All rights reserved. This program and the accompanying materials
-* are made available under the terms of the Eclipse Public License v1.0
-* which accompanies this distribution, and is available at
-* http://www.eclipse.org/legal/epl-v10.html
-*
-* Contributors:
-*     Application Security, Inc.
-*******************************************************************************/
+/*
+ * Copyright 2002-2008 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 package waffle.spring;
 
@@ -25,7 +27,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.filter.GenericFilterBean;
 
@@ -47,9 +49,6 @@ public class NegotiateSecurityFilter extends GenericFilterBean {
     private PrincipalFormat _roleFormat = PrincipalFormat.fqn;
 	private boolean _allowGuestLogin = true;
 
-	private GrantedAuthorityFactory _grantedAuthorityFactory = WindowsAuthenticationToken.DEFAULT_GRANTED_AUTHORITY_FACTORY;
-	private GrantedAuthority _defaultGrantedAuthority = WindowsAuthenticationToken.DEFAULT_GRANTED_AUTHORITY;
-	
 	public NegotiateSecurityFilter() {
 		_log.debug("[waffle.spring.NegotiateSecurityFilter] loaded");
 	}
@@ -66,8 +65,7 @@ public class NegotiateSecurityFilter extends GenericFilterBean {
 		AuthorizationHeader authorizationHeader = new AuthorizationHeader(request);
 		
 		// authenticate user
-		if (! authorizationHeader.isNull() 
-				&& _provider.isSecurityPackageSupported(authorizationHeader.getSecurityPackage())) {
+		if (! authorizationHeader.isNull()) {
 			
 			// log the user in using the token
 			IWindowsIdentity windowsIdentity = null;
@@ -100,11 +98,7 @@ public class NegotiateSecurityFilter extends GenericFilterBean {
 				
 				_log.debug("roles: " + principal.getRolesString());			
 				
-				WindowsAuthenticationToken authentication = new WindowsAuthenticationToken(
-					principal,
-					_grantedAuthorityFactory,
-					_defaultGrantedAuthority);
-				
+				Authentication authentication = new WindowsAuthenticationToken(principal);				
 				SecurityContextHolder.getContext().setAuthentication(authentication);
 
 				_log.info("successfully logged in user: " + windowsIdentity.getFqn());
@@ -178,21 +172,5 @@ public class NegotiateSecurityFilter extends GenericFilterBean {
 	
 	public void setProvider(SecurityFilterProviderCollection provider) {
 		_provider = provider;
-	}
-	
-	public GrantedAuthorityFactory getGrantedAuthorityFactory() {
-		return _grantedAuthorityFactory;
-	}
-
-	public void setGrantedAuthorityFactory(GrantedAuthorityFactory grantedAuthorityFactory) {
-		_grantedAuthorityFactory = grantedAuthorityFactory;
-	}
-
-	public GrantedAuthority getDefaultGrantedAuthority() {
-		return _defaultGrantedAuthority;
-	}
-
-	public void setDefaultGrantedAuthority(GrantedAuthority defaultGrantedAuthority) {
-		_defaultGrantedAuthority = defaultGrantedAuthority;
 	}
 }

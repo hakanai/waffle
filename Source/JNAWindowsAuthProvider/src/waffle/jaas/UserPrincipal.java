@@ -1,28 +1,19 @@
-/*******************************************************************************
-* Waffle (http://waffle.codeplex.com)
-* 
-* Copyright (c) 2010 Application Security, Inc.
-* 
-* All rights reserved. This program and the accompanying materials
-* are made available under the terms of the Eclipse Public License v1.0
-* which accompanies this distribution, and is available at
-* http://www.eclipse.org/legal/epl-v10.html
-*
-* Contributors:
-*     Application Security, Inc.
-*******************************************************************************/
+/*
+ * Copyright (c) Application Security Inc., 2010
+ * All Rights Reserved
+ * Eclipse Public License (EPLv1)
+ * http://waffle.codeplex.com/license
+ */
 package waffle.jaas;
 
-import java.io.Serializable;
 import java.security.Principal;
 
 /**
  * User Principal.
  * @author dblock[at]dblock[dot]org
  */
-public class UserPrincipal implements Principal, Serializable {
+public class UserPrincipal implements Principal {
 
-	private static final long serialVersionUID = 1L;
 	private String _fqn;
 
 	/**
@@ -41,26 +32,19 @@ public class UserPrincipal implements Principal, Serializable {
 		return _fqn;
 	}
 	
-	@Override
     public boolean equals(Object o) {
+        if (o == null)
+            return false;
 
-		if (this == o) {
-			return true;			
-		}
-		
-		if (o instanceof String) {
+        if (this == o)
+            return true;
+
+        if (o instanceof String)
         	return getName().equals((String) o);
-		}
-		
-		if (o instanceof UserPrincipal) {
+        
+        if (o instanceof UserPrincipal)
         	return getName().equals(((UserPrincipal) o).getName());
-		}
-		
-		return false;
+
+        return false;
     }
-	
-	@Override
-	public int hashCode() { 
-		return getName().hashCode();
-	}
 }
