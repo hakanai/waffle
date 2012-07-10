@@ -6,6 +6,7 @@ obj
 Debug
 Release
 TestResult.xml
+.DS_Store
 Source/JNAWindowsAuthProvider/build
 Source/JNAWindowsAuthProvider/lib-test
 Source/JNAWindowsAuthProvider/lib
