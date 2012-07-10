@@ -58,7 +58,7 @@
 		<sequential>
 			<delete dir="${waffle.lib}" />
 			<mkdir dir="${waffle.lib}" />
-			<javac target="${waffle.java.version}" srcdir="${waffle.src}"
+			<javac source="${waffle.java.version}" target="${waffle.java.version}" srcdir="${waffle.src}"
 				destdir="${waffle.lib}" optimize="@{optimize}" debug="@{debug}" 
 				includeantruntime="false">
 				<classpath refid="waffle.classpath" />
@@ -85,7 +85,7 @@
 	</path>
 	<target name="compile-tests">
 		<mkdir dir="${waffle.test.lib}" />
-		<javac target="${waffle.java.version}" srcdir="${waffle.test.src}"
+		<javac source="${waffle.java.version}" target="${waffle.java.version}" srcdir="${waffle.test.src}"
 			destdir="${waffle.test.lib}" optimize="no" debug="yes" includeantruntime="false">
 			<classpath refid="waffle.test.classpath" />
 			<include name="**/*.java" />
