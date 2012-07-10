@@ -32,7 +32,7 @@ import com.sun.jna.platform.win32.Sspi.TimeStamp;
 public class WindowsCredentialsHandleImpl implements IWindowsCredentialsHandle {
 	
 	private String _principalName = null;
-	private NativeLong _credentialsType = null;  
+	private Long _credentialsType = null;  
 	private String _securityPackage = null;
 	private CredHandle _handle = null;
 	private TimeStamp _clientLifetime = null;
@@ -64,7 +64,7 @@ public class WindowsCredentialsHandleImpl implements IWindowsCredentialsHandle {
 	public WindowsCredentialsHandleImpl(String principalName, int credentialsType, 
 			String securityPackage) {
 		_principalName = principalName;
-		_credentialsType = new NativeLong(credentialsType);
+		_credentialsType = Long.valueOf(credentialsType);
 		_securityPackage = securityPackage;
 	}
 

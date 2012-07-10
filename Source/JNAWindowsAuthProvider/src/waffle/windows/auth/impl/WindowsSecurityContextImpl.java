@@ -27,7 +27,7 @@ import com.sun.jna.platform.win32.Sspi.SecBufferDesc;
 import com.sun.jna.platform.win32.W32Errors;
 import com.sun.jna.platform.win32.Win32Exception;
 import com.sun.jna.platform.win32.WinNT.HANDLEByReference;
-import com.sun.jna.ptr.NativeLongByReference;
+import com.sun.jna.ptr.IntByReference;
 
 /**
  * Windows Security Context.
@@ -39,7 +39,7 @@ public class WindowsSecurityContextImpl implements IWindowsSecurityContext {
 	private String _securityPackage;
 	private SecBufferDesc _token = null;
 	private CtxtHandle _ctx = null;
-	private NativeLongByReference _attr;
+	private IntByReference _attr;
 	private CredHandle _credentials;
 	private boolean _continue;
 	
@@ -92,12 +92,12 @@ public class WindowsSecurityContextImpl implements IWindowsSecurityContext {
 	
 	@Override
 	public void initialize(CtxtHandle continueCtx, SecBufferDesc continueToken, String targetName) {
-		_attr = new NativeLongByReference();
+		_attr = new IntByReference();
 		_token = new SecBufferDesc(Sspi.SECBUFFER_TOKEN, Sspi.MAX_TOKEN_SIZE);
     	_ctx = new CtxtHandle();
     	int rc = Secur32.INSTANCE.InitializeSecurityContext(_credentials, continueCtx, 
-    			targetName, new NativeLong(Sspi.ISC_REQ_CONNECTION), new NativeLong(0), 
-    			new NativeLong(Sspi.SECURITY_NATIVE_DREP), continueToken, new NativeLong(0), _ctx, _token, 
+    			targetName, Sspi.ISC_REQ_CONNECTION, 0, 
+    			Sspi.SECURITY_NATIVE_DREP, continueToken, 0, _ctx, _token, 
     			_attr, null);
     	switch(rc) {
     	case W32Errors.SEC_I_CONTINUE_NEEDED:
